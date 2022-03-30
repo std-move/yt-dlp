@@ -1007,6 +1007,7 @@ def _ssl_load_windows_store_certs(ssl_context, storename):
 def make_HTTPS_handler(params, **kwargs):
     opts_check_certificate = not params.get('nocheckcertificate')
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.set_ciphers('ALL:@SECLEVEL=1')
     context.check_hostname = opts_check_certificate
     if params.get('legacyserverconnect'):
         context.options |= 4  # SSL_OP_LEGACY_SERVER_CONNECT
