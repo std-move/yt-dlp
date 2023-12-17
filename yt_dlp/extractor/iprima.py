@@ -141,9 +141,14 @@ class IPrimaIE(InfoExtractor):
         if not video_id:
             nuxt_data = self._search_json(
                 r'<script[^>]+\bid=["\']__NUXT_DATA__["\'][^>]*>',
-                webpage, 'nuxt data', None, end_pattern=r'</script>', contains_pattern=r'\[(?s:.+)\]')
+                webpage, 'nuxt data', None, end_pattern=r'</script>', contains_pattern=r'\[(?s:.+)\]', fatal=False)
 
             video_id = traverse_obj(nuxt_data, lambda _, v: re.fullmatch(r'p\d+', v), get_all=False)
+
+        if not video_id:
+            # Prima ZOOM - single video
+            video_id = self._search_regex(r"let videos = '(?P<id>p\d+)\';",
+                                      webpage, 'real id', group='id', default=None)
 
         if not video_id:
             self.raise_no_formats('Unable to extract video ID from webpage')
