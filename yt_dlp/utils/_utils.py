@@ -5272,6 +5272,11 @@ class RetryManager:
         warn(f'{e}. Retrying{format_field(suffix, None, " %s")} ({count}/{retries})...')
 
         delay = float_or_none(sleep_func(n=count - 1)) if callable(sleep_func) else sleep_func
+        if not delay:
+            # on basic DNS failures, sleep a bit to avoid hogging the CPU
+            exc_lowercase = f'{e}'.lower()
+            if 'failed to resolve' in exc_lowercase or 'getaddrinfo failed' in exc_lowercase:
+                delay = min(max(1, count), 3)
         if delay:
             info(f'Sleeping {delay:.2f} seconds ...')
             time.sleep(delay)
