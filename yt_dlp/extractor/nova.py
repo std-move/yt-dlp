@@ -108,7 +108,14 @@ class NovaEmbedIE(InfoExtractor):
         if not formats and has_drm:
             self.report_drm(video_id)
 
-        title = self._og_search_title(
+        show_name = traverse_obj(player, ('plugins', 'events', 'customData', 'episode'))
+        season = traverse_obj(player, ('plugins', 'events', 'customData', 'seasonNumber')) or ""
+        epis_num = traverse_obj(player, ('plugins', 'events', 'customData', 'programName'))
+        title = None
+        if epis_num and show_name:
+            title = f"{show_name} {str(season) + " " if str(season) else ""}- {epis_num}"
+
+        title = title or self._og_search_title(
             webpage, default=None) or self._search_regex(
             (r'<value>(?P<title>[^<]+)',
              r'videoTitle\s*:\s*(["\'])(?P<value>(?:(?!\1).)+)\1'), webpage,
