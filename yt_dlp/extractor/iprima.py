@@ -194,10 +194,11 @@ class IPrimaIE(InfoExtractor):
                     formats += self._extract_mpd_formats(
                         manifest_url, video_id, mpd_id='dash', fatal=False)
 
+        local_title = traverse_obj(metadata, ('productDetail', 'localTitle'))
         final_result = self._search_json_ld(webpage, video_id, default={})
         final_result.update({
             'id': video_id,
-            'title': final_result.get('title') or title,
+            'title': local_title or final_result.get('title') or title,
             'thumbnail': self._html_search_meta(
                 ['thumbnail', 'og:image', 'twitter:image'],
                 webpage, 'thumbnail', default=None),
