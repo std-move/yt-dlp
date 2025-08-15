@@ -113,7 +113,7 @@ class NovaEmbedIE(InfoExtractor):
         epis_num = traverse_obj(player, ('plugins', 'events', 'customData', 'programName'))
         title = None
         if epis_num and show_name:
-            title = f"{show_name} {str(season) + " " if str(season) else ""}- {epis_num}"
+            title = f'{show_name} {str(season) + " " if str(season) else ""}- {epis_num}'
 
         title = title or self._og_search_title(
             webpage, default=None) or self._search_regex(
