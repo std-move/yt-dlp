@@ -2516,7 +2516,9 @@ class YoutubeDL:
                             yield _merge(pair)
                         return
 
-                    res = next(selector_1(ctx))
+                    res = next(selector_1(ctx), None)
+                    if res is None:
+                        return
                     from copy import deepcopy
                     ctx_copy = deepcopy(ctx)
                     for lang in audio_lang_to_format:
@@ -2524,7 +2526,9 @@ class YoutubeDL:
                         nxt = next(selector_2(ctx_copy), None)
                         if nxt is None:
                             continue
-                        res = _merge((res, nxt))
+                        tmp = next(selector_2(ctx_copy), None)
+                        if tmp is not None:
+                            res = _merge((res, tmp))
                     yield res
 
             elif selector.type == SINGLE:  # atom
