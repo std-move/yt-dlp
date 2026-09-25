@@ -528,7 +528,10 @@ class FFmpegFD(ExternalFD):
             use_mpegts = (tmpfilename == '-') or self.params.get('hls_use_mpegts')
             if use_mpegts is None:
                 use_mpegts = info_dict.get('is_live')
-            if use_mpegts:
+            if tmpfilename != '-' and ext in ('mkv', 'mka', 'webm', 'ts'):
+                # Like mpegts, these stay playable if the download is interrupted
+                args += ['-f', EXT_TO_OUT_FORMATS.get(ext, ext)]
+            elif use_mpegts:
                 args += ['-f', 'mpegts']
             else:
                 args += ['-f', 'mp4']

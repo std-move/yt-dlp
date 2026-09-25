@@ -1138,7 +1138,8 @@ def create_parser():
             'Use the mpegts container for HLS videos; '
             'allowing some players to play the video while downloading, '
             'and reducing the chance of file corruption if download is interrupted. '
-            'This is enabled by default for live streams'))
+            'This is enabled by default for live streams. '
+            'Has no effect for mkv/mka/webm output, which has the same benefits'))
     downloader.add_option(
         '--no-hls-use-mpegts',
         dest='hls_use_mpegts', action='store_false',
