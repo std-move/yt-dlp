@@ -17,6 +17,7 @@ from yt_dlp.utils import (
 )
 from yt_dlp.postprocessor import (
     ExecPP,
+    FFmpegMetadataPP,
     FFmpegThumbnailsConvertorPP,
     MetadataFromFieldPP,
     MetadataParserPP,
@@ -138,6 +139,19 @@ class TestExec(unittest.TestCase):
                 'echo %(title|;)q',
             ]),
             ExecPP)
+
+
+class TestFFmpegMetadataPP(unittest.TestCase):
+    def test_stream_languages(self):
+        langs = ('cs', 'cze', 'ces-CZ', 'CES', 'en-US', 'haw', 'und')
+        info = {'requested_formats': [
+            {'vcodec': 'avc1', 'acodec': 'none'},
+            *({'vcodec': 'none', 'acodec': 'mp4a.40.2', 'language': lang} for lang in langs),
+        ]}
+        self.assertEqual(
+            [opt for opt in FFmpegMetadataPP(None)._get_metadata_opts(info) if opt[0].startswith('-metadata:s:')],
+            [(f'-metadata:s:{i}', f'language={lang}') for i, lang in enumerate(
+                ('ces', 'ces', 'ces', 'ces', 'eng', 'haw', 'und'), start=1)])
 
 
 class TestModifyChaptersPP(unittest.TestCase):
