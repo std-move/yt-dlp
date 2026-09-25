@@ -4,6 +4,7 @@
 import os
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -220,6 +221,25 @@ class TestFFmpegFD(unittest.TestCase):
             downloader._call_downloader('test', {'url': 'x', 'ext': 'mp4'})
             self.assertEqual(self._args, [
                 'ffmpeg', '-y', '-hide_banner', '-i', 'x', '-c', 'copy', '-f', 'mp4', 'file:test'])
+
+    @patch('yt_dlp.downloader.external.Popen')
+    def test_hls_output_format(self, _):
+        def output_format(params, tmpfilename='test', **info):
+            with FakeYDL() as ydl:
+                downloader = FFmpegFD(ydl, params)
+                downloader._debug_cmd = self._test_cmd
+                downloader._call_downloader(tmpfilename, {**TEST_INFO, 'protocol': 'm3u8_native', **info})
+            return self._args[self._args.index('-f') + 1]
+
+        self.assertEqual(output_format({}, ext='mp4'), 'mp4')
+        self.assertEqual(output_format({}, ext='mp4', is_live=True), 'mpegts')
+        self.assertEqual(output_format({'hls_use_mpegts': True}, ext='mp4'), 'mpegts')
+        self.assertEqual(output_format({'hls_use_mpegts': False}, ext='mp4', is_live=True), 'mp4')
+        self.assertEqual(output_format({}, tmpfilename='-', ext='mkv'), 'mpegts')
+        for ext, out_format in (('mkv', 'matroska'), ('mka', 'matroska'), ('webm', 'webm'), ('ts', 'mpegts')):
+            self.assertEqual(output_format({}, ext=ext), out_format, ext)
+            self.assertEqual(output_format({}, ext=ext, is_live=True), out_format, ext)
+            self.assertEqual(output_format({'hls_use_mpegts': True}, ext=ext), out_format, ext)
 
 
 if __name__ == '__main__':
