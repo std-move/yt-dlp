@@ -868,6 +868,19 @@ Tip: Use `CTRL`+`F` (or `Command`+`F`)  to search by keywords
                                     into a single file
     --no-audio-multistreams         Only one audio stream is downloaded for each
                                     output file (default)
+    --all-audio-languages           Download one audio track per available
+                                    language and merge them into a single file.
+                                    This is the default for all sites except
+                                    YouTube. See "FORMAT SELECTION" for more
+                                    details
+    --no-all-audio-languages        Download only one audio track (default for
+                                    YouTube)
+    --default-audio-language LANG   Language of the audio track to put first and
+                                    mark as default when downloading all audio
+                                    languages and the site does not mark a
+                                    single track as default (default: cs)
+    --no-default-audio-language     Keep the order given by the format sorting
+                                    in that case
     --prefer-free-formats           Prefer video formats with free containers
                                     over non-free ones of the same quality. Use
                                     with "-S ext" to strictly prefer free
@@ -1559,6 +1572,12 @@ You can merge the video and audio of multiple formats into a single file using `
 **Deprecation warning**: Since the *below* described behavior is complex and counter-intuitive, this will be removed and multistreams will be enabled by default in the future. A new operator will be instead added to limit formats to single audio/video
 
 Unless `--video-multistreams` is used, all formats with a video stream except the first one are ignored. Similarly, unless `--audio-multistreams` is used, all formats with an audio stream except the first one are ignored. E.g. `-f bestvideo+best+bestaudio --video-multistreams --audio-multistreams` will download and merge all 3 given formats. The resulting file will have 2 video streams and 2 audio streams. But `-f bestvideo+best+bestaudio --no-video-multistreams` will download and merge only `bestvideo` and `bestaudio`. `best` is ignored since another format containing a video stream (`bestvideo`) has already been selected. The order of the formats is therefore important. `-f best+bestaudio --no-audio-multistreams` will download only `best` while `-f bestaudio+best --no-audio-multistreams` will ignore `best` and download only `bestaudio`.
+
+## Multiple Audio Languages
+
+By default (for all sites except YouTube, where it has to be enabled with `--all-audio-languages`), yt-dlp downloads one audio track for **every** language the video offers instead of only the single best one. This happens after the regular format selection: whenever the selected formats consist of a video and exactly one audio-only track, the *same* format selector is evaluated once more for each additional language with the audio tracks of all other languages hidden, and whatever audio track it picks then is added to the merge. So the default `-f bv*+ba/b` gives the best audio of every language, `-f "bv+ba[abr<=128]"` gives the audio matching the filter for every language, and languages for which the selector picks nothing (e.g. with `ba[language=de]` or a specific format id) are skipped.
+
+Languages are grouped by their primary language subtag (`en-US` and `en-GB` both count as `eng`, and `cs`, `ces` and `cze` all count as `ces`), tracks without a language tag are never added, and the audio track the site marks as default/original (highest `language_preference`) is placed first so that players select it by default. If the site does not mark a single track this way (no track has a higher `language_preference` than all others), the track in the language given by `--default-audio-language` (Czech by default; any code of the language such as `cs`, `ces` or `cze` can be used) is placed first instead; `--no-default-audio-language` keeps the order given by the format sorting. The feature has no effect for muxed formats (e.g. `-f b`), audio-only downloads, when multiple audio streams were selected already, for live streams (unless `--live-from-start` is used), when streaming to stdout or when ffmpeg is not available. The resulting file is normally an `mkv`; each audio stream is tagged with its language and only the first one is flagged as default. Use `--no-all-audio-languages` to always download a single audio track and `--all-audio-languages` to force the feature for all sites.
 
 ## Filtering Formats
 

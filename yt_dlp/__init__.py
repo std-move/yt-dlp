@@ -247,6 +247,8 @@ def validate_options(opts):
     for f in opts.format_sort:
         validate_regex('format sorting', f, FormatSorter.regex)
 
+    validate_regex('default audio language', opts.default_audio_language, r'(?:[a-zA-Z]{2,3}(?:[-_][a-zA-Z0-9]+)*)?$')
+
     # Postprocessor formats
     if opts.convertsubtitles == 'none':
         opts.convertsubtitles = None
@@ -823,6 +825,8 @@ def parse_options(argv=None):
         'format_sort_force': opts.format_sort_force,
         'allow_multiple_video_streams': opts.allow_multiple_video_streams,
         'allow_multiple_audio_streams': opts.allow_multiple_audio_streams,
+        'all_audio_languages': opts.all_audio_languages,
+        'default_audio_language': opts.default_audio_language,
         'check_formats': opts.check_formats,
         'listformats': opts.listformats,
         'listformats_table': opts.listformats_table,

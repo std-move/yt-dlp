@@ -24,6 +24,7 @@ import tokenize
 import traceback
 import unicodedata
 
+from .audio_languages import expand_selected_formats
 from .cache import Cache
 from .compat import urllib  # isort: split
 from .compat import urllib_req_to_req
@@ -271,6 +272,13 @@ class YoutubeDL:
                        into a single file
     allow_multiple_audio_streams:   Allow multiple audio streams to be merged
                        into a single file
+    all_audio_languages:  Download one audio track per language and merge them
+                       into a single file. None (default) enables this for all
+                       extractors except YouTube. See audio_languages.py
+    default_audio_language:  Language (e.g. "cs") whose audio track is put first
+                       and marked as default by all_audio_languages when the
+                       site does not mark a single track as default.
+                       None (default) means "cs", "" disables this
     check_formats      Whether to test if the formats are downloadable.
                        Can be True (check all), False (check none),
                        'selected' (check selected formats),
@@ -2338,7 +2346,7 @@ class YoutubeDL:
                 else 'bestvideo+bestaudio/best' if compat
                 else 'bestvideo*+bestaudio/best')
 
-    def build_format_selector(self, format_spec):
+    def build_format_selector(self, format_spec, *, allow_multiple_audio_streams=None):
         def syntax_error(note, start):
             message = (
                 'Invalid format specification: '
@@ -2353,6 +2361,8 @@ class YoutubeDL:
 
         allow_multiple_streams = {'audio': self.params.get('allow_multiple_audio_streams', False),
                                   'video': self.params.get('allow_multiple_video_streams', False)}
+        if allow_multiple_audio_streams is not None:
+            allow_multiple_streams['audio'] = allow_multiple_audio_streams
 
         def _parse_filter(tokens):
             filter_parts = []
@@ -3084,6 +3094,7 @@ class YoutubeDL:
                 format_selector = self.build_format_selector(req_format)
 
             formats_to_download = self._select_formats(formats, format_selector)
+            formats_to_download = expand_selected_formats(self, info_dict, formats, format_selector, formats_to_download)
             if interactive_format_selection and not formats_to_download:
                 self.report_error('Requested format is not available', tb=False, is_error=False)
                 continue

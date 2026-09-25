@@ -9,6 +9,7 @@ import subprocess
 import time
 
 from .common import PostProcessor
+from ..audio_languages import ffmpeg_audio_stream_args
 from ..compat import imghdr
 from ..utils import (
     MEDIA_EXTENSIONS,
@@ -837,6 +838,7 @@ class FFmpegMergerPP(FFmpegPostProcessor):
                 audio_streams += 1
             if fmt.get('vcodec') != 'none':
                 args.extend(['-map', f'{i}:v:0'])
+        args.extend(ffmpeg_audio_stream_args(info['requested_formats']))
         self.to_screen(f'Merging formats into "{filename}"')
         self.run_ffmpeg_multiple_files(info['__files_to_merge'], temp_filename, args)
         os.rename(temp_filename, filename)
