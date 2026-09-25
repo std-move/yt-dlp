@@ -915,6 +915,26 @@ def create_parser():
         action='store_false', dest='allow_multiple_audio_streams',
         help='Only one audio stream is downloaded for each output file (default)')
     video_format.add_option(
+        '--all-audio-languages',
+        action='store_true', dest='all_audio_languages', default=None,
+        help=(
+            'Download one audio track per available language and merge them into a single file. '
+            'This is the default for all sites except YouTube. See "FORMAT SELECTION" for more details'))
+    video_format.add_option(
+        '--no-all-audio-languages',
+        action='store_false', dest='all_audio_languages',
+        help='Download only one audio track (default for YouTube)')
+    video_format.add_option(
+        '--default-audio-language',
+        metavar='LANG', dest='default_audio_language', default=None,
+        help=(
+            'Language of the audio track to put first and mark as default when downloading all audio languages '
+            'and the site does not mark a single track as default (default: cs)'))
+    video_format.add_option(
+        '--no-default-audio-language',
+        action='store_const', dest='default_audio_language', const='',
+        help='Keep the order given by the format sorting in that case')
+    video_format.add_option(
         '--all-formats',
         action='store_const', dest='format', const='all',
         help=optparse.SUPPRESS_HELP)

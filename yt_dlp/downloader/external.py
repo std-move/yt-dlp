@@ -9,6 +9,7 @@ import tempfile
 import time
 
 from .fragment import FragmentFD
+from ..audio_languages import ffmpeg_audio_stream_args
 from ..postprocessor.ffmpeg import EXT_TO_OUT_FORMATS, FFmpegPostProcessor
 from ..utils import (
     DownloadError,
@@ -517,6 +518,7 @@ class FFmpegFD(ExternalFD):
             for i, fmt in enumerate(selected_formats):
                 stream_number = fmt.get('manifest_stream_number', 0)
                 args.extend(['-map', f'{i}:{stream_number}'])
+            args.extend(ffmpeg_audio_stream_args(selected_formats))
 
         if self.params.get('test', False):
             args += ['-fs', str(self._TEST_FILE_SIZE)]
