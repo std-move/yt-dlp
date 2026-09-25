@@ -608,7 +608,8 @@ Tip: Use `CTRL`+`F` (or `Command`+`F`)  to search by keywords
                                     while downloading, and reducing the chance
                                     of file corruption if download is
                                     interrupted. This is enabled by default for
-                                    live streams
+                                    live streams. Has no effect for mkv/mka/webm
+                                    output, which has the same benefits
     --no-hls-use-mpegts             Do not use the mpegts container for HLS
                                     videos. This is default when not downloading
                                     live streams
